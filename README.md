@@ -1,4 +1,4 @@
-# GUI_for_stable_diffusion
+# SimpleGUI_for_stable_diffusion
 anaconda3で環境構築済みの人向けのシンプルなGUIです。  
 .pyのGUIからコマンドを実行して、stable_diffusionのoptimized版を動かします。  
 Windows用です。  
