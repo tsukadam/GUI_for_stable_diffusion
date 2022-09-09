@@ -9,7 +9,7 @@ Windows用です。
 コマンドを手打ちするより多少楽にしたい、という程度の目的で作りました。  
 
 パラメータを入力して「Output」ボタンで出力します。  
-outdirを設定しない場合は、デフォルトのstable-diffusion\outputsに出力されます。
+outdirを設定しない場合はデフォルトのstable-diffusion\outputsに出力されます。
 
 # 機能
 ![screenShot](img/img%20(3).png)
