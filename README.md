@@ -41,7 +41,7 @@ Settingボタンから上記の４つのパスを設定してください。
 直下にoptimizedSDなどのフォルダがある、stable-diffusionという名前のフォルダです。  
 > anacondaをアクティベートする.batファイル  
 
-C:\Users\（ユーザー名）\anaconda3\Scripts\activate　などです。  
+C:\Users\（ユーザー名）\anaconda3\Scripts\activate.bat　などです。  
 > 実行ファイル  
 
 自動で設定されますが、デフォルトから移動している場合は手動で設定してください。  
