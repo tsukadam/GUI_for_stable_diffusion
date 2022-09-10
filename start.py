@@ -7,6 +7,12 @@ import configparser
 import os
 from concurrent.futures import ThreadPoolExecutor as threadPE
 import queue
+import re
+
+import datetime
+t_delta = datetime.timedelta(hours=9)
+JST = datetime.timezone(t_delta, 'JST')
+nowTime = datetime.datetime.now(JST)
 
 thisPath = os.path.dirname(__file__)
 os.chdir(thisPath)
@@ -211,6 +217,9 @@ class orderData:
 
         def get(self, itemName, layer):
                 return self.itemList[layer][itemName]
+        
+        def get_itemList(self):
+                return self.itemList
 
         def get_variant(self):
                 return self.variant
@@ -446,15 +455,6 @@ class mainGUI(tk.Frame):
                 self.var_strength_op2 = self.make_op2(self, 13, "1")
                 self.var_scale_op1 = self.make_op1(self, 8, "2")
                 self.var_scale_op2 = self.make_op2(self, 8, "1")
-
-                self.var_n_iter.trace_add("write", self.draw_number)
-                self.var_n_samples.trace_add("write", self.draw_number)
-
-                self.var_H_op2.trace_add("write", self.draw_number)
-                self.var_W_op2.trace_add("write", self.draw_number)
-                self.var_ddim_steps_op2.trace_add("write", self.draw_number)
-                self.var_strength_op2.trace_add("write", self.draw_number)
-                self.var_scale_op2.trace_add("write", self.draw_number)
                 
                 self.sep1 = ttk.Separator(self, orient="horizontal")
                 self.sep1.grid(row=11, column=0, columnspan=7, padx=20, pady=20, sticky=tk.W + tk.E)
@@ -488,6 +488,20 @@ class mainGUI(tk.Frame):
 
                 self.run_button5 = tk.Button(self, text="remove \"_\"", width=15, command=lambda: myInputController.delete_underbar())
                 self.run_button5.grid(row=2, column=5, columnspan=3, padx=5, pady=3, sticky=tk.NE)
+
+                self.var_n_iter.trace_add("write", self.draw_number)
+                self.var_n_samples.trace_add("write", self.draw_number)
+
+                self.var_H_op2.trace_add("write", self.draw_number)
+                self.var_W_op2.trace_add("write", self.draw_number)
+                self.var_ddim_steps_op2.trace_add("write", self.draw_number)
+                self.var_strength_op2.trace_add("write", self.draw_number)
+                self.var_scale_op2.trace_add("write", self.draw_number)
+
+                self.var_init_img.trace_add("write", self.draw_number)
+                self.var_init_img.trace_add("write", self.dequote_init_img)
+                self.var_outdir.trace_add("write", self.dequote_outdir)
+
 
                 self.var_sdRoot = self.make_settingvar()
                 self.var_condaActivateBat = self.make_settingvar()
@@ -544,7 +558,16 @@ class mainGUI(tk.Frame):
                 run_buttonSetting.grid(row=1, column=0, padx=5, pady=10)
                 self.master.wait_window(dlg)
                 
+        def dequote_outdir(self, a, b, c):
+                text = self.var_outdir.get()
+                text = delete_quote(text)
+                self.var_outdir.set(text)
 
+        def dequote_init_img(self, a, b, c):
+                text = self.var_init_img.get()
+                text = delete_quote(text)
+                self.var_init_img.set(text)
+                
         def draw_number(self, a, b, c):
                 num=[]
                 num.append(self.var_n_iter.get())
@@ -552,9 +575,11 @@ class mainGUI(tk.Frame):
                 num.append(self.var_H_op2.get())
                 num.append(self.var_W_op2.get())
                 num.append(self.var_ddim_steps_op2.get())
-                num.append(self.var_strength_op2.get())
                 num.append(self.var_scale_op2.get())
 
+                if not self.var_init_img.get() == "":
+                        num.append(self.var_strength_op2.get())
+                        
                 num_all = 1
                 for n in num:
                         if n:
@@ -832,26 +857,29 @@ class outputController:
                                         else:
                                                 value = int(value)
                                         value = str(value)
-                                        print(value)
-                               
                                         myTaskData.set(key, value)
                 return myTaskData
 
         def do_output(self):
-                if not myInputController.check_setting():
-                        myInputController.prepare_settingDlg()
-                else:
-                        self.pathData.get_pathFromSetting()
-                        myOrderData = orderData()
-                        myItemList = self.inputController.get_inputToItemList()
-                        myOrderData.set_itemList(myItemList)                                
-                        self.fileController.set_log(myItemList)
-
-                        optionInfo = myOrderData.get_optionInfo()
-                        if len(optionInfo.keys()) == 0:
-                                self.with_noLoop(myOrderData)
+                for i in range(10):
+                        if not myInputController.check_setting():
+                                myInputController.prepare_settingDlg()
                         else:
-                                self.with_loop(myOrderData, optionInfo)
+                                break
+                self.pathData.get_pathFromSetting()
+                myOrderData = orderData()
+                myItemList = self.inputController.get_inputToItemList()
+                myOrderData.set_itemList(myItemList)                                
+                self.fileController.set_log(myItemList)
+
+                myOrderLogController = orderLogController(myOrderData, self.pathData)
+                myOrderLogController.make_logFile()
+
+                optionInfo = myOrderData.get_optionInfo()
+                if len(optionInfo.keys()) == 0:
+                        self.with_noLoop(myOrderData)
+                else:
+                        self.with_loop(myOrderData, optionInfo)
 
         def with_noLoop(self, orderData):
 
@@ -948,6 +976,75 @@ class queueController:
                 self.draw_qBox() 
 
 
+class orderLogController:
+        def __init__(self, orderData, pathData):
+                 self.orderData = orderData
+                 self.pathData = pathData
+
+        def make_logFile(self):
+                folderPath = self.get_folderName()
+                logText = self.get_logText()
+                nowTimeText = nowTime.strftime('%Y_%m_%d_%H%M%S')
+                os.makedirs(folderPath, exist_ok = True)
+                f = open(folderPath + "/" + nowTimeText + ".txt", "w")
+                f.write(logText)
+                f.close()
+                
+        def get_logText(self):
+                text = []
+                text.append(self.orderData.get("prompt", "MAIN") + "\n\n")
+
+                newList = {}
+                for itemName in itemNameList:
+                        newList[itemName] = {}
+
+                itemList = self.orderData.get_itemList()
+                for layer in itemList:
+                        for itemName in itemList[layer]:
+                                newList[itemName].update({layer : itemList[layer][itemName]})
+
+                for itemName in itemNameList:
+                        if not itemName == "prompt" and not itemName == "plms":
+                                text.append(itemName + ":")
+                                text.append(newList[itemName]["MAIN"] + " ")
+                                if not newList[itemName]["OP2"] == "" and not newList[itemName]["OP2"] == "1":
+                                        text.append(" (" + newList[itemName]["OP1"] + "刻みで")
+                                        text.append(newList[itemName]["OP2"] + "種出力)")
+                                text.append("\n")
+                logText = ""
+
+                for i in range(len(text)):
+                       logText = logText + text[i]
+                return logText
+
+        def get_folderName(self):
+                prompt = self.orderData.get("prompt", "MAIN")
+                outPass = self.get_outPass()
+
+                folderName = ""
+                folderName = os.path.join(outPass, "_".join(re.split(":| ", prompt)))[:150]
+                return folderName
+
+        def get_outPass(self):
+                sdRootPath = self.pathData.get("sdRoot", "PATH")
+                outdir = self.orderData.get("outdir", "MAIN")
+                if self.orderData.get("init_img", "MAIN") == "":
+                        mode = "txt"
+                else:
+                        mode = "img"
+                
+                if outdir == "" and mode == "txt":
+                        outPath = sdRootPath + "/outputs/txt2img-samples"
+                elif outdir == "" and mode == "img":
+                        outPath = sdRootPath + "/outputs/img2img-samples"
+                else:
+                        outPath = outdir
+                return outPath
+                        
+
+        
+
+        
 def do_bat(taskData, pathData):
         cmd = taskData.get_cmd()
         sdRootPath = pathData.get("sdRoot", "PATH")
@@ -964,6 +1061,7 @@ def do_bat(taskData, pathData):
                         " " + sdRootPathDrive + " " + condaPath + " " + sdOptPath,
                         shell=True,
                         encoding="shift-jis")
+
 
 def do_setting(self, dlg, fileController):
         myList = itemList(settingLayerNameList, settingNameList)
