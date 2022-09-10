@@ -12,7 +12,6 @@ import re
 import datetime
 t_delta = datetime.timedelta(hours=9)
 JST = datetime.timezone(t_delta, 'JST')
-nowTime = datetime.datetime.now(JST)
 
 thisPath = os.path.dirname(__file__)
 os.chdir(thisPath)
@@ -23,8 +22,7 @@ settingPath = "setting.ini"  # 設定ファイル start.pyと同じディレク�
 
 
 def delete_quote(oldText):  # 引用符の削除
-        newText = oldText.lstrip("\"")
-        newText = newText.rstrip("\"")
+        newText = oldText.replace("\"","")
         return newText
 
 def delete_space(oldText):  # 空白の削除
@@ -64,7 +62,7 @@ class fileController:
                 if os.path.isfile(filePath):
                         count = 0
                         config = configparser.ConfigParser()
-                        config.read(filePath, encoding="utf-8")
+                        config.read(filePath, encoding="shift_jis")
                         for layer in itemList:
                                 for name in itemList[layer]:
                                         try:
@@ -105,7 +103,7 @@ class fileController:
                                 return itemList
                         else:
                                 config = configparser.ConfigParser()
-                                config.read(filePath, encoding="utf-8")
+                                config.read(filePath, encoding="shift_jis")
                                 for layer in itemList:
                                         for itemName in itemList[layer]:
                                                 value = config.get(layer, itemName)
@@ -122,7 +120,7 @@ class fileController:
                         self.make_ini(itemList, filePath)
                         
                 config = configparser.ConfigParser()
-                config.read(filePath, encoding="utf-8")
+                config.read(filePath, encoding="shift_jis")
                 itemList = self.replace_blank(itemList)
                 for layer in itemList:
                         for itemName in itemList[layer]:
@@ -486,9 +484,6 @@ class mainGUI(tk.Frame):
                 self.run_button1 = tk.Button(self, text="Setting", width=15, command=lambda: myInputController.prepare_settingDlg())
                 self.run_button1.grid(row=19, column=0, columnspan=3, padx=5, pady=3, sticky=tk.W)
 
-                self.run_button5 = tk.Button(self, text="remove \"_\"", width=15, command=lambda: myInputController.delete_underbar())
-                self.run_button5.grid(row=2, column=5, columnspan=3, padx=5, pady=3, sticky=tk.NE)
-
                 self.var_n_iter.trace_add("write", self.draw_number)
                 self.var_n_samples.trace_add("write", self.draw_number)
 
@@ -686,13 +681,6 @@ class inputController:
                 else:
                         dlg.destroy()
 
-        def delete_underbar(self):
-                text = self.mainGUI.input_prompt.get("1.0", "2.0")
-                self.mainGUI.input_prompt.delete("1.0", "end")
-                text = text.replace("\n", "")
-                text = text.replace("_", "")
-                self.mainGUI.input_prompt.insert("1.0", text)
-
         def set_settingDir(self, var):
                 path = tk.filedialog.askdirectory(title="Select a folder")
                 if not path == None and not path == "":
@@ -746,7 +734,7 @@ class inputController:
                                 if itemName == "prompt":
                                         text = self.inputList[layer][itemName].get("1.0", "2.0")
                                         text = text.replace("\n", "")
-                                        return text                                        
+                                        return text
                                 elif itemName == "tileable":
                                         if self.inputList[layer][itemName].get() == True:
                                                 text = "tileable"
@@ -970,6 +958,7 @@ class orderLogController:
                  self.pathData = pathData
 
         def make_logFile(self):
+                nowTime = datetime.datetime.now(JST)
                 folderPath = self.get_folderName()
                 logText = self.get_logText()
                 nowTimeText = nowTime.strftime('%Y_%m_%d_%H%M%S')
