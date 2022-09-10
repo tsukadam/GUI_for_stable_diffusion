@@ -1,6 +1,6 @@
 # SimpleGUI_for_stable_diffusion
 anaconda3で環境構築済みの人向けのシンプルなGUIです。  
-.pyのGUIからコマンドを実行して、stable_diffusionのoptimized版を動かします。  
+GUIからコマンドを実行して、stable_diffusionのoptimized版を動かします。  
 Windows用です。  
 
 ![screenShot](img/img%20(2).png)
@@ -35,7 +35,7 @@ conda activate ldm
 が通るようになっていればOKです。  
 
 # 起動～初期設定
-start.pyをダブルクリックして起動します。 
+start.pyとbat.batを任意のフォルダに入れ、start.pyをダブルクリックして起動します。 
 
 ![screenShot](img/img%20(4).png)  
 
@@ -90,4 +90,5 @@ optimized_img2img.pyも同様にします。
 メモリ不足の場合はn_stepsを減らすと生成できることがあります。  
 空欄があっても出力できますが、WやHが64の倍数になっていない等は不可です。
 
-2022/9/10 ログテキスト機能を追加しました
+
+2022/9/10 ログテキスト機能を追加しました  
