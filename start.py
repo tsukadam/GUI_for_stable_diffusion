@@ -497,11 +497,8 @@ class mainGUI(tk.Frame):
                 self.var_ddim_steps_op2.trace_add("write", self.draw_number)
                 self.var_strength_op2.trace_add("write", self.draw_number)
                 self.var_scale_op2.trace_add("write", self.draw_number)
-
                 self.var_init_img.trace_add("write", self.draw_number)
-                self.var_init_img.trace_add("write", self.dequote_init_img)
-                self.var_outdir.trace_add("write", self.dequote_outdir)
-
+ 
 
                 self.var_sdRoot = self.make_settingvar()
                 self.var_condaActivateBat = self.make_settingvar()
@@ -557,17 +554,7 @@ class mainGUI(tk.Frame):
                 run_buttonSetting = tk.Button(dlg, text="OK", width=15, command=dlg.destroy)
                 run_buttonSetting.grid(row=1, column=0, padx=5, pady=10)
                 self.master.wait_window(dlg)
-                
-        def dequote_outdir(self, a, b, c):
-                text = self.var_outdir.get()
-                text = delete_quote(text)
-                self.var_outdir.set(text)
-
-        def dequote_init_img(self, a, b, c):
-                text = self.var_init_img.get()
-                text = delete_quote(text)
-                self.var_init_img.set(text)
-                
+                                
         def draw_number(self, a, b, c):
                 num=[]
                 num.append(self.var_n_iter.get())
@@ -639,7 +626,6 @@ class inputController:
                 myList["PATH"]["condaActivateBat"] = self.mainGUI.var_condaActivateBat
                 myList["PATH"]["sdOptimizedTxt2img"] = self.mainGUI.var_sdOptimizedTxt2img
                 myList["PATH"]["sdOptimizedImg2img"] = self.mainGUI.var_sdOptimizedImg2img
-
                 
                 self.mainGUI.var_sdRoot.trace_add("write", self.set_InputToSettingFile_trace)
                 self.mainGUI.var_condaActivateBat.trace_add("write", self.set_InputToSettingFile_trace)
@@ -805,14 +791,16 @@ class inputController:
                 myList = itemList(itemLayerNameList, itemNameList)
                 for layer in itemLayerNameList:
                         for itemName in itemNameList:
-                                myList[layer][itemName] = self.get(itemName, layer)
+                                data = delete_quote(self.get(itemName, layer))                                
+                                myList[layer][itemName] = data
                 return myList
 
         def get_inputToSettingList(self):
                 myList = itemList(settingLayerNameList, settingNameList)
                 for layer in settingLayerNameList:
                         for itemName in settingNameList:
-                                myList[layer][itemName] = self.get_setting(itemName)
+                                data = delete_quote(self.get_setting(itemName))
+                                myList[layer][itemName] = data
                 return myList
 
         def set_itemListToInput(self, itemList):
@@ -887,7 +875,7 @@ class outputController:
                 self.queueController.push_qWaiting(myTaskData)
 
         def with_loop(self, orderData, optionInfo):
-                # ループの最大数は4項目のため、forの入れ子は4つ
+                # ループの最大数は5項目のため、forの入れ子は5つ
                 # ループ可能項目を増やしたら、入れ子も追加する
                 loopName = ["", "", "", "", ""]
                 loopWidth = [0, 0, 0, 0, 0]
@@ -1041,9 +1029,6 @@ class orderLogController:
                         outPath = outdir
                 return outPath
                         
-
-        
-
         
 def do_bat(taskData, pathData):
         cmd = taskData.get_cmd()
