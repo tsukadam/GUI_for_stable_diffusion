@@ -3,7 +3,7 @@ anaconda3で環境構築済みの人向けのシンプルなGUIです。
 GUIからコマンドを実行して、stable_diffusionのoptimized版を動かします。  
 Windows用です。  
 
-![screenShot](img/img%20(2).png)
+![screenShot](img/img2.png)
 
 性質上、コマンドプロンプトから手動で実行できる状態になっていないと機能しません。  
 コマンドを手打ちするより多少楽にしたい、という程度の目的で作りました。  
@@ -12,11 +12,11 @@ Windows用です。
 outdirを設定しない場合はデフォルトのstable-diffusion\outputsに出力されます。
 
 # 機能
-![screenShot](img/img%20(3).png)
+![screenShot](img/img3.png)
 
 複数の条件でまとめて出力できます。  
 
-![screenShot](img/img%20(1).png)
+![screenShot](img/img1.png)
 
 キューで一つずつ処理するので、一度に負荷がかかることはありません。  
 Waitingにあるタスクは中止できます。
@@ -37,7 +37,7 @@ conda activate ldm
 # 起動～初期設定
 start.pyとbat.batを任意のフォルダに入れ、start.pyをダブルクリックして起動します。 
 
-![screenShot](img/img%20(4).png)  
+![screenShot](img/img4.png)  
 
 Settingボタンから上記の４つのパスを設定してください。  
 > stable-diffusionのルートフォルダ  
@@ -93,3 +93,5 @@ optimized_img2img.pyも同様にします。
 
 
 2022/9/10 ログテキスト機能を追加しました  
+2022/9/10 パスに日本語があると読めないのを直しました  
+2022/9/10 promptの改行を無視するようにしました  
