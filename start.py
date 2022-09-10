@@ -732,8 +732,10 @@ class inputController:
                 if not self.inputList[layer][itemName] == "":  # 文字列はsetで操作できないため
                         if layer == "MAIN":                                
                                 if itemName == "prompt":
-                                        text = self.inputList[layer][itemName].get("1.0", "2.0")
+                                        text = self.inputList[layer][itemName].get("1.0", "end")
+                                        print(text)
                                         text = text.replace("\n", "")
+                                        print("after:"+text)                                        
                                         return text
                                 elif itemName == "tileable":
                                         if self.inputList[layer][itemName].get() == True:
@@ -758,7 +760,7 @@ class inputController:
                 if not self.inputList[layer][itemName] == "":  # 文字列はsetで操作できないため
                         if itemName == "prompt" and layer == "MAIN":
                                 self.inputList[layer][itemName].delete("1.0", "end")
-                        elif itemName == "tileable" and layer == "MAIN":                                
+                        elif itemName == "tileable" and layer == "MAIN":
                                 self.inputList[layer][itemName].set(False)
                         elif itemName == "plms" and layer == "MAIN":
                                 self.inputList[layer][itemName].set(False)
