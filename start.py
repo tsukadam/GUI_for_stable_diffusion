@@ -553,7 +553,6 @@ class mainGUI(tk.Frame):
                 num.append(self.var_W_op2.get())
                 num.append(self.var_ddim_steps_op2.get())
                 num.append(self.var_strength_op2.get())
-                num.append(self.var_strength_op2.get())
                 num.append(self.var_scale_op2.get())
 
                 num_all = 1
