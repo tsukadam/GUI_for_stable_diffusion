@@ -736,9 +736,7 @@ class inputController:
                         if layer == "MAIN":                                
                                 if itemName == "prompt":
                                         text = self.inputList[layer][itemName].get("1.0", "end")
-                                        print(text)
-                                        text = text.replace("\n", "")
-                                        print("after:"+text)                                        
+                                        text = text.replace("\n", "")                             
                                         return text
                                 elif itemName == "tileable":
                                         if self.inputList[layer][itemName].get() == True:
@@ -987,12 +985,17 @@ class orderLogController:
 
                 for itemName in itemNameList:
                         if not itemName == "prompt" and not itemName == "plms":
-                                text.append(itemName + ":")
-                                text.append(newList[itemName]["MAIN"] + " ")
-                                if not newList[itemName]["OP2"] == "" and not newList[itemName]["OP2"] == "1":
-                                        text.append(" (" + newList[itemName]["OP1"] + "刻みで")
-                                        text.append(newList[itemName]["OP2"] + "種出力)")
-                                text.append("\n")
+                                if newList["init_img"]["MAIN"] == "" and itemName == "init_img":
+                                                pass                                        
+                                elif newList["init_img"]["MAIN"] == "" and itemName == "strength":
+                                                pass
+                                else:
+                                        text.append(itemName + ":")
+                                        text.append(newList[itemName]["MAIN"] + " ")                                        
+                                        if not newList[itemName]["OP2"] == "" and not newList[itemName]["OP2"] == "1":
+                                                text.append(" (" + newList[itemName]["OP1"] + "刻みで")
+                                                text.append(newList[itemName]["OP2"] + "種出力)")
+                                        text.append("\n")
                 logText = ""
 
                 for i in range(len(text)):
