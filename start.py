@@ -237,10 +237,14 @@ class orderData:
                                 except(TypeError, ValueError):
                                         OP2 = int(0)
 
-                                if OP2 < 2 or OP1 == 0:  # 意味のない入力の時は含めない
+
+                                if itemName == "strength" and self.get("init_img","MAIN") == "":  # init_imgが無い時のstrengthは含めない
                                         pass
                                 else:
-                                        optionInfo[itemName] = {"OP1" : OP1, "OP2" : OP2}
+                                        if OP2 < 2 or OP1 == 0:  # 意味のない入力の時は含めない
+                                                pass
+                                        else:
+                                                optionInfo[itemName] = {"OP1" : OP1, "OP2" : OP2}
                 return optionInfo
 
 
@@ -285,12 +289,11 @@ class taskData:
                         cmd[7] = " --init-img " + "\'" + self.get("init_img") + "\'"
                 if not self.get("strength") == "":
                         cmd[8] = " --strength " + self.get("strength")
-                # tileableは入力がtileableの時のみ使用
-                if self.get("tileable") == "tileable":
+                if self.get("tileable") == "tileable":  # tileableは入力がtileableの時のみ使用
                         cmd[9] = " --tileable"
                 if not self.get("outdir") == "":
                         cmd[10] = " --outdir " + self.get("outdir")
-                if not self.get("plms") == "":
+                if not self.get("plms") == "":  # optimizedにないオプション
                         cmd[11] = " --plms"
                 if not self.get("scale") == "":
                         cmd[12] = " --scale " + self.get("scale")
@@ -632,7 +635,7 @@ class inputController:
         def check_setting(self):  # iniを読んでから、設定に欠けがあるか確認
                 self.set_settingFileToInput()
 
-                myList = self.get_inputToSettingList()
+                myList = self.get_settingListFromInput()
                 blank = 0
                 for layer in myList:
                         for itemName in myList[layer]:
@@ -661,7 +664,7 @@ class inputController:
                 self.set_settingListToInput(myList)
 
         def set_InputToSettingFile(self):  # 入力欄の内容を設定iniに書き込む
-                myList = self.get_inputToSettingList()
+                myList = self.get_settingListFromInput()
                 self.fileController.set_setting(myList)
 
         def set_InputToSettingFile_trace(self, a, b, c):  # 上記をtrace_addから呼び出す時用
@@ -777,7 +780,7 @@ class inputController:
                 self.input_qBox.insert(position, text)
                 self.input_qBox.configure(state = "disabled")
                                 
-        def get_inputToItemList(self):
+        def get_itemListFromInput(self):
                 myList = itemList(itemLayerNameList, itemNameList)
                 for layer in itemLayerNameList:
                         for itemName in itemNameList:
@@ -785,7 +788,7 @@ class inputController:
                                 myList[layer][itemName] = data
                 return myList
 
-        def get_inputToSettingList(self):
+        def get_settingListFromInput(self):
                 myList = itemList(settingLayerNameList, settingNameList)
                 for layer in settingLayerNameList:
                         for itemName in settingNameList:
@@ -846,7 +849,7 @@ class outputController:
                                 break
                 self.pathData.get_pathFromSetting()
                 myOrderData = orderData()
-                myItemList = self.inputController.get_inputToItemList()
+                myItemList = self.inputController.get_itemListFromInput()
                 myOrderData.set_itemList(myItemList)                                
                 self.fileController.set_log(myItemList)
 
